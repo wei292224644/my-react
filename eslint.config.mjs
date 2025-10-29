@@ -14,6 +14,6 @@ export default defineConfig([
       parserOptions: { ecmaVersion: 'latest', sourceType: 'script' }
     }
   },
-  tseslint.configs.recommended,
-  prettierRecommended
+  prettierRecommended,
+  tseslint.configs.recommended
 ]);
