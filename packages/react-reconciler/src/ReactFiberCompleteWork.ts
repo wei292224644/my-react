@@ -18,7 +18,6 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
       }
 
       return null;
-
     case HostText:
       return null;
     case HostRoot:
@@ -30,8 +29,5 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
       }
       break;
   }
+  return null;
 };
-
-
-
-const appendAllChildren = (  )
