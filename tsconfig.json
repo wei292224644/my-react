@@ -4,9 +4,9 @@
         "useDefineForClassFields": true,
         "module": "esnext",
         "lib": [
-            "ESNext","DOM"
+            "ESNext",
+            "DOM"
         ],
-
         "moduleResolution": "node",
         "strict": true,
         "sourceMap": true,
@@ -15,6 +15,11 @@
         "esModuleInterop": true,
         "noEmit": true,
         "noUnusedParameters": true,
-        "baseUrl": "./packages"
+        "baseUrl": "./packages",
+        "paths": {
+            "ReactFiberConfig": [
+                "./react-reconciler/src/ReactFiberConfig"
+            ],
+        }
     }
 }

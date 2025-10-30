@@ -1,14 +1,36 @@
-import { FiberNode } from './ReactFiber';
+import { createWorkInProgress, FiberNode, FiberRootNode } from './ReactFiber';
 import { beginWork } from './ReactFiberBeginWork';
 import { completeWork } from './ReactFiberCompleteWork';
+import { HostRoot } from './ReactFiberWorkTags';
 
 let workInProgress: FiberNode | null = null;
 
-function prepareFreshStack(fiber: FiberNode) {
-  workInProgress = fiber;
+function prepareFreshStack(root: FiberRootNode) {
+  workInProgress = createWorkInProgress(root.current, {});
 }
 
-function renderRoot(root: FiberNode) {
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+  const root = markUpdateFromFiberToRoot(fiber);
+  renderRoot(root);
+}
+
+function markUpdateFromFiberToRoot(fiber: FiberNode) {
+  let node: FiberNode | null = fiber;
+  let parent: FiberNode | null = node.return;
+
+  while (parent !== null) {
+    node = parent;
+    parent = node.return;
+  }
+
+  if (node.tag !== HostRoot) {
+    return node.stateNode as FiberRootNode;
+  }
+
+  return null;
+}
+
+function renderRoot(root: FiberRootNode) {
   prepareFreshStack(root);
 
   do {
