@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "eslint": "eslint  --ext .js,.ts,.jsx,.tsx  --fix --quiet ./packages",
-    "prepare": "husky"
+    "prepare": "husky",
+    "demo": "vite serve demos/test  --config ./scripts/vite/vite.config.ts --force"
   },
   "keywords": [],
   "author": "",
@@ -15,13 +16,22 @@
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/js": "^9.38.0",
+    "@rollup/plugin-replace": "^6.0.3",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "rollup": "^4.52.5",
-    "typescript-eslint": "^8.46.2"
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vite": "^7.1.7"
   }
 }

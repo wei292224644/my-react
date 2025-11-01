@@ -1,4 +1,4 @@
-import { Container } from 'ReactFiberConfig';
+import { Container } from 'HostConfig';
 import { FiberNode, FiberRootNode } from './ReactFiber';
 import { HostRoot } from './ReactFiberWorkTags';
 import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue } from './Update';
@@ -11,7 +11,6 @@ export function createContainer(container: Container) {
   const root = new FiberRootNode(container, hostRootFiber);
 
   hostRootFiber.updateQueue = createUpdateQueue();
-
   return root;
 }
 

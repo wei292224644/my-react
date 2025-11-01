@@ -1,9 +1,10 @@
-import { appendInitialChild, createInstance, createTextInstance } from 'ReactFiberConfig';
+import { appendInitialChild, Container, createInstance, createTextInstance } from 'HostConfig';
 import { FiberNode } from './ReactFiber';
 import { HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { NoFlags } from './ReactFiberFlags';
 
 export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
+  console.log('completeWork', workInProgress);
   const newProps = workInProgress.pendingProps;
   const current = workInProgress.alternate;
 
@@ -46,7 +47,7 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
   return null;
 };
 
-const appendAllChildren = (parent: FiberNode, workInProgress: FiberNode) => {
+const appendAllChildren = (parent: Container, workInProgress: FiberNode) => {
   let node = workInProgress.child;
 
   while (node !== null) {
