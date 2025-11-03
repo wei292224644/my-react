@@ -2,6 +2,7 @@ import { Key, Props, Ref } from 'shared/ReactTypes';
 import { FunctionComponent, HostComponent, WorkTag } from './ReactFiberWorkTags';
 import { FiberFlags, NoFlags } from './ReactFiberFlags';
 import { Container } from 'HostConfig';
+import { UpdateQueue } from './Update';
 
 export class FiberNode {
   /**
@@ -12,6 +13,12 @@ export class FiberNode {
   tag: WorkTag;
   key: Key;
   ref: Ref;
+
+  /**
+   * 指向具体的实例
+   * 比如对于 HostComponent 类型的 fiberNode，它的 stateNode 就是 DOM 节点
+   * 对于 FunctionComponent 类型的 fiberNode，它的 stateNode 就是函数组件的实例（如果有的话）
+   */
   stateNode: any;
 
   return: FiberNode | null;
@@ -34,7 +41,15 @@ export class FiberNode {
   alternate: FiberNode | null;
   flags: FiberFlags;
   subtreeFlags: FiberFlags;
-  updateQueue: unknown;
+
+  /**
+   * 更新队列
+   */
+  updateQueue: UpdateQueue<any> | null;
+  /**
+   * 要删除的子节点集合
+   */
+  deletions: FiberNode[] | null;
 
   constructor(tag: WorkTag, pendingProps: Props, key: Key) {
     this.tag = tag;
@@ -61,6 +76,8 @@ export class FiberNode {
     this.flags = NoFlags;
     this.subtreeFlags = NoFlags;
     this.updateQueue = null;
+
+    this.deletions = null;
   }
 }
 
@@ -94,6 +111,7 @@ export const createWorkInProgress = (current: FiberNode, pendingProps: Props): F
     //重置副作用
     wip.flags = NoFlags;
     wip.subtreeFlags = NoFlags;
+    wip.deletions = null;
   }
   wip.type = current.type;
   wip.updateQueue = current.updateQueue;

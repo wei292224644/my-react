@@ -1,5 +1,6 @@
 export type Container = Element;
 export type Instance = Element;
+export type TextInstance = Text;
 
 export const createInstance = (type: string, props: any): Container => {
   //TODO: 处理props
@@ -19,3 +20,11 @@ export const appendInitialChild = (parent: Instance | Container, child: Instance
 };
 
 export const appendChildToContainer = appendInitialChild;
+
+export const commitTextUpdate = (textInstance: TextInstance, content: string) => {
+  textInstance.textContent = content;
+};
+
+export const removeChild = (child: Instance | TextInstance, container: Container) => {
+  container.removeChild(child);
+};

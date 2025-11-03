@@ -1,7 +1,11 @@
 import { appendInitialChild, Container, createInstance, createTextInstance } from 'HostConfig';
 import { FiberNode } from './ReactFiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
-import { NoFlags } from './ReactFiberFlags';
+import { NoFlags, Update } from './ReactFiberFlags';
+
+const markUpdate = (fiber: FiberNode) => {
+  fiber.flags |= Update;
+};
 
 export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
   console.log('completeWork', workInProgress);
@@ -26,6 +30,10 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
     case HostText:
       if (current !== null && workInProgress.stateNode) {
         //update
+        const oldText = current.memoizedProps.content;
+        const newText = newProps.content;
+
+        if (oldText !== newText) markUpdate(workInProgress);
       } else {
         //mount
         // 1. 构建DOM
