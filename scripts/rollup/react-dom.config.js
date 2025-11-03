@@ -31,5 +31,18 @@ export default [
         }
       })
     ]
+  },
+  // react-test-utils
+  {
+    input: path.resolve(pkgPath, 'test-utils.ts'),
+    output: [
+      {
+        file: path.resolve(pkgDistPath, 'test-utils.js'),
+        name: 'testUtils',
+        format: 'umd'
+      }
+    ],
+    external: ['react-dom', 'react'],
+    plugins: getBaseRollupPlugins()
   }
 ];
