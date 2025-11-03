@@ -4,6 +4,7 @@ import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFib
 import { processUpdateQueue, UpdateQueue } from './Update';
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
 import { Placement } from './ReactFiberFlags';
+import { renderWithHooks } from './ReactFiberHooks';
 
 const createChildReconciler = (shouldTrackEffects: boolean) => {
   const reconcileSingleElement = (
@@ -82,7 +83,7 @@ export const beginWork = (workInProgress: FiberNode): FiberNode | null => {
       return updateHostRoot(workInProgress);
 
     case FunctionComponent:
-      return null;
+      return updateFunctionComponent(workInProgress);
 
     case HostText:
       return null;
@@ -117,6 +118,12 @@ const updateHostComponent = (workInProgress: FiberNode) => {
   const nextChildren = nextProps.children;
   reconcileChildren(workInProgress, nextChildren);
 
+  return workInProgress.child;
+};
+
+const updateFunctionComponent = (workInProgress: FiberNode) => {
+  const nextChildren = renderWithHooks(workInProgress);
+  reconcileChildren(workInProgress, nextChildren);
   return workInProgress.child;
 };
 

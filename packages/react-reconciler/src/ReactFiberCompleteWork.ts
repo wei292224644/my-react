@@ -1,6 +1,6 @@
 import { appendInitialChild, Container, createInstance, createTextInstance } from 'HostConfig';
 import { FiberNode } from './ReactFiber';
-import { HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { NoFlags } from './ReactFiberFlags';
 
 export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
@@ -35,6 +35,9 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
       bubbleProperties(workInProgress);
       return null;
     case HostRoot:
+      bubbleProperties(workInProgress);
+      return null;
+    case FunctionComponent:
       bubbleProperties(workInProgress);
       return null;
 
