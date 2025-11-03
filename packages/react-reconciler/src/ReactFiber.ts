@@ -6,6 +6,7 @@ import { Container } from 'HostConfig';
 export class FiberNode {
   /**
    *  与 elementType 类似，但对于 HostComponent，它就是 DOM 元素的标签名
+   *  对于 FunctionComponent，则是函数本身
    */
   type: any;
   tag: WorkTag;
@@ -20,8 +21,16 @@ export class FiberNode {
 
   pendingProps: Props;
   memoizedProps: Props | null;
+
+  /**
+   * 存储组件的状态信息
+   * 比如函数组件的 useState/useReducer 的状态
+   */
   memoizedState: any;
-  // 指向当前fiber对应的另外一个树中的fiber节点 （current树或workInProgress树）
+
+  /**
+   * 指向当前fiber对应的另外一个树中的fiber节点 （current树或workInProgress树）
+   */
   alternate: FiberNode | null;
   flags: FiberFlags;
   subtreeFlags: FiberFlags;

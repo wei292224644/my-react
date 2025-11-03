@@ -3,7 +3,7 @@ import { Action } from 'shared/ReactTypes';
 export type Dispatch<T> = (action: Action<T>) => void;
 
 export interface Dispatcher {
-  userState: <T>(initialState: T | (() => T)) => [T, Dispatch<T>];
+  useState: <T>(initialState: T | (() => T)) => [T, Dispatch<T>];
 }
 
 const currentDispatcher: {
