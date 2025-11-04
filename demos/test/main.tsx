@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 const App = () => {
   const [num, setNum] = useState(100);
-  window.setNum = setNum;
-  return <div>{num === 3 ? <Child /> : <p>{num}</p>}</div>;
+  return <div onClick={() => setNum(num + 1)}>{num === 3 ? <Child /> : <p>{num}</p>}</div>;
 };
 
 const Child = () => {

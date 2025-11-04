@@ -2,6 +2,7 @@ import { appendChildToContainer, commitTextUpdate, Container, removeChild } from
 import { ChildDeletion, MutationMask, NoFlags, Placement, Update } from './ReactFiberFlags';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { FiberNode } from './ReactFiber';
+import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 
 let nextEffect: FiberNode | null = null;
 
@@ -76,6 +77,12 @@ const commitUpdate = (fiber: FiberNode) => {
       const text = fiber.memoizedProps.content;
       const instance = fiber.stateNode;
       commitTextUpdate(instance, text);
+      break;
+    }
+
+    case HostComponent: {
+      updateFiberProps(fiber.stateNode, fiber.memoizedProps);
+      console.log('执行HostComponent的update操作', fiber);
       break;
     }
 

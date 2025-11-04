@@ -2,13 +2,13 @@ import { appendInitialChild, Container, createInstance, createTextInstance } fro
 import { FiberNode } from './ReactFiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { NoFlags, Update } from './ReactFiberFlags';
+import { Props } from 'shared/ReactTypes';
 
 const markUpdate = (fiber: FiberNode) => {
   fiber.flags |= Update;
 };
 
 export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
-  console.log('completeWork', workInProgress);
   const newProps = workInProgress.pendingProps;
   const current = workInProgress.alternate;
 
@@ -16,6 +16,7 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
     case HostComponent:
       if (current !== null && workInProgress.stateNode) {
         //update
+        updateHostComponent(current, workInProgress, newProps);
       } else {
         //mount
         // 1. 构建DOM
@@ -105,4 +106,14 @@ const bubbleProperties = (workInProgress: FiberNode) => {
   }
 
   workInProgress.subtreeFlags |= subtreeFlags;
+};
+
+const updateHostComponent = (current: FiberNode, workInProgress: FiberNode, newProps: Props) => {
+  const oldProps = current.memoizedProps;
+
+  if (oldProps == newProps) {
+    return;
+  }
+
+  markUpdate(workInProgress);
 };
