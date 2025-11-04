@@ -1,6 +1,6 @@
 import { appendInitialChild, Container, createInstance, createTextInstance } from 'HostConfig';
 import { FiberNode } from './ReactFiber';
-import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
+import { Fragment, FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { NoFlags, Update } from './ReactFiberFlags';
 import { Props } from 'shared/ReactTypes';
 import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
@@ -46,9 +46,8 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
       bubbleProperties(workInProgress);
       return null;
     case HostRoot:
-      bubbleProperties(workInProgress);
-      return null;
     case FunctionComponent:
+    case Fragment:
       bubbleProperties(workInProgress);
       return null;
 

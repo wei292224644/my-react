@@ -9,7 +9,13 @@ const App = () => {
       ? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
       : [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>];
 
-  return <ul onClick={() => setNum(num + 1)}>{arr}</ul>;
+  return (
+    <ul onClick={() => setNum(num + 1)}>
+      <li key="A">A</li>
+      <li key="B">B</li>
+      {arr}
+    </ul>
+  );
 };
 
 createRoot(document.getElementById('root')!).render(<App />);

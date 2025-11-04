@@ -103,26 +103,36 @@ const commitUpdate = (fiber: FiberNode) => {
   }
 };
 
+function recordHostChildrenToDelete(hostChildrenToDelete: FiberNode[], unmountFiber: FiberNode) {
+  const lastOne = hostChildrenToDelete[hostChildrenToDelete.length - 1];
+  if (!lastOne) {
+    hostChildrenToDelete.push(unmountFiber);
+  } else {
+    let node = lastOne.sibling;
+    while (node !== null) {
+      if (unmountFiber === node) {
+        hostChildrenToDelete.push(unmountFiber);
+      }
+      node = node.sibling;
+    }
+  }
+}
+
 const commitDeletion = (childToDelete: FiberNode) => {
   if (__DEV__) {
     console.warn('执行Deletion操作', childToDelete);
   }
-
-  let hostRootFiber: FiberNode | null = null;
+  const rootChildrenToDelete: FiberNode[] = [];
 
   commitNestedComponent(childToDelete, (unmountFiber) => {
     switch (unmountFiber.tag) {
       case HostComponent: {
-        if (hostRootFiber === null) {
-          hostRootFiber = unmountFiber;
-        }
+        recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
         // TODO: 解绑ref
         return;
       }
       case HostText: {
-        if (hostRootFiber === null) {
-          hostRootFiber = unmountFiber;
-        }
+        recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
         // TODO: 解绑ref
         return;
       }
@@ -140,16 +150,18 @@ const commitDeletion = (childToDelete: FiberNode) => {
     }
   });
 
-  if (hostRootFiber !== null) {
+  if (rootChildrenToDelete.length > 0) {
     //如果找到了HostComponent或HostText节点，说明有对应的DOM需要删除
     //找到最近的 parent html 节点
     const hostParent = getHostParentFiber(childToDelete);
     if (hostParent !== null) {
       //从DOM中删除对应的节点
       if (__DEV__) {
-        console.warn('从DOM中删除节点', hostRootFiber, 'from', hostParent);
+        console.warn('从DOM中删除节点', rootChildrenToDelete, 'from', hostParent);
       }
-      removeChild((hostRootFiber as FiberNode).stateNode, hostParent);
+      rootChildrenToDelete.forEach((child) => {
+        removeChild(child.stateNode, hostParent);
+      });
     }
   }
 
@@ -160,7 +172,7 @@ const commitDeletion = (childToDelete: FiberNode) => {
 const commitNestedComponent = (fiber: FiberNode, onCommitUnmount: (fiber: FiberNode) => void) => {
   let node = fiber;
 
-  while (node.child !== null) {
+  while (true) {
     onCommitUnmount(node);
 
     if (node.child !== null) {
