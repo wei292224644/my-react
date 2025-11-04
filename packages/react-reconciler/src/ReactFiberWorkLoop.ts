@@ -77,7 +77,6 @@ function commitRoot(root: FiberRootNode) {
     commitMutationEffects(finishedWork);
     //TODO : mutation
     console.warn('mutation阶段开始', finishedWork);
-
     root.current = finishedWork;
 
     //TODO : layout
@@ -113,6 +112,11 @@ function completeUnitOfWork(fiber: FiberNode) {
 
     if (next !== null) {
       workInProgress = next;
+      return;
+    }
+    const sibling = node.sibling;
+    if (sibling !== null) {
+      workInProgress = sibling;
       return;
     }
     node = node.return;

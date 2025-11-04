@@ -27,3 +27,11 @@ export const commitTextUpdate = (textInstance: TextInstance, content: string) =>
 export const removeChild = (child: Instance | TextInstance, container: Container) => {
   container.removeChild(child);
 };
+
+export const insertChildToContainer = (
+  child: Instance | TextInstance,
+  container: Container,
+  before: Instance | TextInstance
+) => {
+  container.insertBefore(child, before);
+};

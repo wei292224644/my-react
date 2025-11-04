@@ -3,10 +3,13 @@ import { createRoot } from 'react-dom/client';
 
 const App = () => {
   const [num, setNum] = useState(100);
-  return <div onClick={() => setNum(num + 1)}>{num === 3 ? <Child /> : <p>{num}</p>}</div>;
+
+  const arr =
+    num % 2 === 0
+      ? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
+      : [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>];
+
+  return <ul onClick={() => setNum(num + 1)}>{arr}</ul>;
 };
 
-const Child = () => {
-  return <div>child component</div>;
-};
 createRoot(document.getElementById('root')!).render(<App />);

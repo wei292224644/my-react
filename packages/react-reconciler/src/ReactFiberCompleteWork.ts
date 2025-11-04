@@ -3,6 +3,7 @@ import { FiberNode } from './ReactFiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './ReactFiberWorkTags';
 import { NoFlags, Update } from './ReactFiberFlags';
 import { Props } from 'shared/ReactTypes';
+import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 
 const markUpdate = (fiber: FiberNode) => {
   fiber.flags |= Update;
@@ -16,7 +17,8 @@ export const completeWork = (workInProgress: FiberNode): FiberNode | null => {
     case HostComponent:
       if (current !== null && workInProgress.stateNode) {
         //update
-        updateHostComponent(current, workInProgress, newProps);
+        // updateHostComponent(current, workInProgress, newProps);
+        updateFiberProps(workInProgress.stateNode, newProps);
       } else {
         //mount
         // 1. 构建DOM
