@@ -1,10 +1,19 @@
 import { Dispatch, Dispatcher } from 'react/src/currentDispatcher';
 import { FiberNode } from './ReactFiber';
 import internals from 'shared/Internals';
-import { createUpdate, createUpdateQueue, enqueueUpdate, processUpdateQueue, UpdateQueue } from './Update';
+import {
+  createUpdate,
+  createUpdateQueue,
+  enqueueUpdate,
+  processUpdateQueue,
+  Update,
+  UpdateQueue
+} from './Update';
 import { Action } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop';
 import { Lane, Lanes, NoLane, SyncLane } from './ReactFiberLane';
+import { HasEffect, HookFlags, Passive } from './ReactFiberEffectTags';
+import { PassiveMask } from './ReactFiberFlags';
 
 const { currentDispatcher } = internals;
 
@@ -18,6 +27,18 @@ interface Hooks {
   updateQueue: unknown;
   next: Hooks | null;
 }
+
+export type Effect = {
+  tag: HookFlags;
+  create: () => void | (() => void);
+  destroy: void | (() => void);
+  deps: any[] | null;
+  next: Effect | null;
+};
+
+export type FunctionComponentUpdateQueue = {
+  lastEffect: Effect | null;
+};
 
 export const renderWithHooks = (workInProgress: FiberNode, lane: Lane) => {
   //赋值操作
@@ -168,12 +189,74 @@ const updateWorkInProgressHook = (): Hooks => {
   return workInProgressHook;
 };
 
+const mountEffect: Dispatcher['useEffect'] = (create: () => void | (() => void), deps?: any[] | null) => {
+  const hook = mountWorkInProgressHook();
+
+  const nextDeps = deps === undefined ? null : deps;
+  currentlyRenderingFiber!.flags |= PassiveMask;
+  hook.memoizedState = pushEffect(Passive | HasEffect, create, undefined, nextDeps);
+  console.log('mountEffect', currentlyRenderingFiber);
+};
+
+const updateEffect: Dispatcher['useEffect'] = (create: () => void | (() => void), deps?: any[] | null) => {
+  const hook = updateWorkInProgressHook();
+
+  console.log('updateEffect', hook);
+};
+
+const createFunctionComponentUpdateQueue = (): FunctionComponentUpdateQueue => {
+  return {
+    lastEffect: null
+  };
+};
+
+const pushEffect = (
+  hookFlags: HookFlags,
+  create: () => void | (() => void),
+  destroy: void | (() => void),
+  deps: any[] | null
+): Effect => {
+  const effect: Effect = {
+    tag: hookFlags,
+    create,
+    destroy,
+    deps,
+    next: null
+  };
+
+  const fiber = currentlyRenderingFiber!;
+  let updateQueue = fiber.updateQueue as unknown as FunctionComponentUpdateQueue;
+
+  if (updateQueue === null) {
+    updateQueue = createFunctionComponentUpdateQueue();
+    fiber.updateQueue = updateQueue as unknown as UpdateQueue<unknown>;
+
+    effect.next = effect;
+    updateQueue.lastEffect = effect;
+  } else {
+    const lastEffect = updateQueue.lastEffect;
+    if (lastEffect === null) {
+      effect.next = effect;
+      updateQueue.lastEffect = effect;
+    } else {
+      const firstEffect = lastEffect.next;
+      lastEffect.next = effect;
+      effect.next = firstEffect;
+      updateQueue.lastEffect = effect;
+    }
+  }
+
+  return effect;
+};
+
 const HookDispatcherOnMount: Dispatcher = {
-  useState: mountState
+  useState: mountState,
+  useEffect: mountEffect
 };
 
 const HookDispatcherOnUpdate: Dispatcher = {
-  useState: updateState
+  useState: updateState,
+  useEffect: updateEffect
 };
 
 export const requestUpdateLane = (fiber: FiberNode) => {

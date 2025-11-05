@@ -18,7 +18,7 @@ export class FiberNode {
   /**
    * 指向具体的实例
    * 比如对于 HostComponent 类型的 fiberNode，它的 stateNode 就是 DOM 节点
-   * 对于 FunctionComponent 类型的 fiberNode，它的 stateNode 就是函数组件的实例（如果有的话）
+   *
    */
   stateNode: any;
 

@@ -4,6 +4,7 @@ export type Dispatch<T> = (action: Action<T>) => void;
 
 export interface Dispatcher {
   useState: <T>(initialState: T | (() => T)) => [T, Dispatch<T>];
+  useEffect: (create: () => void | (() => void), deps?: any[] | null) => void;
 }
 
 const currentDispatcher: {

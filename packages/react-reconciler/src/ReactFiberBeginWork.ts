@@ -268,6 +268,7 @@ const createChildReconciler = (shouldTrackEffects: boolean) => {
         if (oldIndex < lastPlacedIndex) {
           //需要移动
           newFiber.flags |= Placement;
+          console.log('需要移动的节点', newFiber);
           continue;
         } else {
           // 不移动
@@ -276,6 +277,7 @@ const createChildReconciler = (shouldTrackEffects: boolean) => {
       } else {
         // mount
         newFiber.flags |= Placement;
+        console.log('需要移动的节点', newFiber);
       }
     }
     // 删除没有复用的节点
