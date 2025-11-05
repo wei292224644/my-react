@@ -4,12 +4,14 @@ import internals from 'shared/Internals';
 import { createUpdate, createUpdateQueue, enqueueUpdate, processUpdateQueue, UpdateQueue } from './Update';
 import { Action } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop';
+import { Lane, Lanes, NoLane, SyncLane } from './ReactFiberLane';
 
 const { currentDispatcher } = internals;
 
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hooks | null = null;
 let currentHook: Hooks | null = null;
+let renderLane: Lane = NoLane;
 
 interface Hooks {
   memoizedState: any;
@@ -17,11 +19,12 @@ interface Hooks {
   next: Hooks | null;
 }
 
-export const renderWithHooks = (workInProgress: FiberNode) => {
+export const renderWithHooks = (workInProgress: FiberNode, lane: Lane) => {
   //赋值操作
   currentlyRenderingFiber = workInProgress;
 
   workInProgress.memoizedState = null;
+  renderLane = lane;
 
   const current = workInProgress.alternate;
 
@@ -40,6 +43,7 @@ export const renderWithHooks = (workInProgress: FiberNode) => {
   currentlyRenderingFiber = null;
   workInProgressHook = null;
   currentHook = null;
+  renderLane = NoLane;
 
   return chilren;
 };
@@ -70,9 +74,10 @@ const mountState: Dispatcher['useState'] = <State>(initialState: Action<State>):
 };
 
 const dispatchSetState = <State>(fiber: FiberNode, queue: UpdateQueue<State>, action: Action<State>) => {
-  const update = createUpdate<State>(action);
+  const lane = requestUpdateLane(fiber);
+  const update = createUpdate<State>(action, lane);
   enqueueUpdate<State>(queue, update);
-  scheduleUpdateOnFiber(fiber);
+  scheduleUpdateOnFiber(fiber, lane);
 };
 
 const mountWorkInProgressHook = (): Hooks => {
@@ -99,7 +104,6 @@ const mountWorkInProgressHook = (): Hooks => {
 };
 
 const updateState: Dispatcher['useState'] = <State>(): [State, Dispatch<State>] => {
-  console.log('updateState');
   const hook = updateWorkInProgressHook();
 
   //计算新的state
@@ -107,9 +111,11 @@ const updateState: Dispatcher['useState'] = <State>(): [State, Dispatch<State>] 
   const pending = queue.shared.pending;
 
   if (pending !== null) {
-    const { memoizedState } = processUpdateQueue(hook.memoizedState, pending);
+    const { memoizedState } = processUpdateQueue(hook.memoizedState, pending, renderLane);
     hook.memoizedState = memoizedState;
   }
+
+  queue.shared.pending = null;
 
   return [hook.memoizedState, queue.dispatch as Dispatch<State>];
 };
@@ -168,4 +174,8 @@ const HookDispatcherOnMount: Dispatcher = {
 
 const HookDispatcherOnUpdate: Dispatcher = {
   useState: updateState
+};
+
+export const requestUpdateLane = (fiber: FiberNode) => {
+  return SyncLane;
 };

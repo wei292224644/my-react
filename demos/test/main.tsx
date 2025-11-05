@@ -3,17 +3,17 @@ import { createRoot } from 'react-dom/client';
 
 const App = () => {
   const [num, setNum] = useState(100);
-
-  const arr =
-    num % 2 === 0
-      ? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
-      : [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>];
-
   return (
-    <ul onClick={() => setNum(num + 1)}>
+    <ul
+      onClick={() => {
+        setNum((num) => num + 1);
+        setNum((num) => num + 2);
+        setNum((num) => num + 3);
+      }}
+    >
       <li key="A">A</li>
       <li key="B">B</li>
-      {arr}
+      {num}
     </ul>
   );
 };

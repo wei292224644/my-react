@@ -10,6 +10,7 @@ import { processUpdateQueue, UpdateQueue } from './Update';
 import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from 'shared/ReactSymbols';
 import { ChildDeletion, Placement } from './ReactFiberFlags';
 import { renderWithHooks } from './ReactFiberHooks';
+import { Lane } from './ReactFiberLane';
 
 const createChildReconciler = (shouldTrackEffects: boolean) => {
   const deleteChild = (returnFiber: FiberNode, childToDelete: FiberNode) => {
@@ -343,16 +344,16 @@ const createChildReconciler = (shouldTrackEffects: boolean) => {
 const reconcileChildFibers = createChildReconciler(true);
 const mountChildFibers = createChildReconciler(false);
 
-export const beginWork = (workInProgress: FiberNode): FiberNode | null => {
+export const beginWork = (workInProgress: FiberNode, lane: Lane): FiberNode | null => {
   switch (workInProgress.tag) {
     case HostComponent:
-      return updateHostComponent(workInProgress);
+      return updateHostComponent(workInProgress, lane);
 
     case HostRoot:
-      return updateHostRoot(workInProgress);
+      return updateHostRoot(workInProgress, lane);
 
     case FunctionComponent:
-      return updateFunctionComponent(workInProgress);
+      return updateFunctionComponent(workInProgress, lane);
 
     case Fragment:
       return updateFragment(workInProgress);
@@ -369,14 +370,14 @@ export const beginWork = (workInProgress: FiberNode): FiberNode | null => {
   return null;
 };
 
-const updateHostRoot = (workInProgress: FiberNode) => {
+const updateHostRoot = (workInProgress: FiberNode, lane: Lane) => {
   const baseState = workInProgress.memoizedState;
   //                                                            Element?
   const updateQueue = workInProgress.updateQueue as UpdateQueue<ReactElementType>;
   const pending = updateQueue.shared.pending;
   updateQueue.shared.pending = null;
 
-  const { memoizedState } = processUpdateQueue(baseState, pending);
+  const { memoizedState } = processUpdateQueue(baseState, pending, lane);
 
   workInProgress.memoizedState = memoizedState;
   const nextChildren = workInProgress.memoizedState;
@@ -385,7 +386,7 @@ const updateHostRoot = (workInProgress: FiberNode) => {
   return workInProgress.child;
 };
 
-const updateHostComponent = (workInProgress: FiberNode) => {
+const updateHostComponent = (workInProgress: FiberNode, lane: Lane) => {
   const nextProps = workInProgress.pendingProps;
   const nextChildren = nextProps.children;
   reconcileChildren(workInProgress, nextChildren);
@@ -393,8 +394,8 @@ const updateHostComponent = (workInProgress: FiberNode) => {
   return workInProgress.child;
 };
 
-const updateFunctionComponent = (workInProgress: FiberNode) => {
-  const nextChildren = renderWithHooks(workInProgress);
+const updateFunctionComponent = (workInProgress: FiberNode, lane: Lane) => {
+  const nextChildren = renderWithHooks(workInProgress, lane);
   reconcileChildren(workInProgress, nextChildren);
   return workInProgress.child;
 };

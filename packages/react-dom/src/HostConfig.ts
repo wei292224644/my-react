@@ -35,3 +35,19 @@ export const insertChildToContainer = (
 ) => {
   container.insertBefore(child, before);
 };
+
+export const scheduleTimeout: any = typeof setTimeout === 'function' ? setTimeout : undefined;
+const localPromise = typeof Promise === 'function' ? Promise : undefined;
+
+export const scheduleMicrotask =
+  typeof queueMicrotask === 'function'
+    ? queueMicrotask
+    : typeof localPromise === 'function'
+      ? (callback: any) => localPromise.resolve().then(callback).catch(handleErrorInNextTick)
+      : scheduleTimeout;
+
+function handleErrorInNextTick(error: any) {
+  setTimeout(() => {
+    throw error;
+  });
+}

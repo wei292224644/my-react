@@ -3,6 +3,7 @@ import { Fragment, FunctionComponent, HostComponent, WorkTag } from './ReactFibe
 import { FiberFlags, NoFlags } from './ReactFiberFlags';
 import { Container } from 'HostConfig';
 import { UpdateQueue } from './Update';
+import { Lane, Lanes, NoLane, NoLanes } from './ReactFiberLane';
 
 export class FiberNode {
   /**
@@ -86,12 +87,18 @@ export class FiberRootNode {
   current: FiberNode;
   finishedWork: FiberNode | null;
 
+  pendingLanes: Lanes;
+  finishedLane: Lane;
+
   constructor(container: Container, hostRootFiber: FiberNode) {
     this.container = container;
     this.current = hostRootFiber;
     this.finishedWork = null;
 
     hostRootFiber.stateNode = this;
+
+    this.pendingLanes = NoLanes;
+    this.finishedLane = NoLane;
   }
 }
 
