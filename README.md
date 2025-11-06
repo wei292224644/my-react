@@ -22,6 +22,8 @@
 
 1. 当多子节点变成单子节点时，需要遍历所有的子节点，如果`key相同&type相同`的话，说明该节点是可复用的节点，反之标记为`ChildDeletion`，并将其他子节点标记`ChildDeletion`。
 2. 当多节点或单节点变成多节点时，创建一个哈希表来存储current树中的子节点。循环遍历新的子节点数组，并将其创建FiberNode，组合成链表形式（大概率alternate复用）。然后处理副作用，这里记录一个`lastPlacedIndex`值，用来存储current树中上一个可复用的节点索引，然后比较当前循环中的current树的fiberNode的索引是否小于`lastPlacedIndex`，因为在新的树中，每次循环获取的都会是最右边的，所以如果小于`lastPlacedIndex`的话，那么一定是需要`Placement(移动)`的节点。
+   ABC->CAB C节点在current树中的index为2,那么需要移动的便是AB
+   CAB->ABC C节点在current树中的index为0，那么需要移动的只有C
 
 ## completeWork 函数
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 const App = () => {
@@ -8,6 +8,14 @@ const App = () => {
     num % 2 === 0
       ? [<li key="A">A</li>, <li key="B">B</li>, <li key="C">C</li>]
       : [<li key="C">C</li>, <li key="A">A</li>, <li key="B">B</li>];
+
+  useEffect(() => {
+    console.log('render');
+  }, []);
+
+  useEffect(() => {
+    console.log('num change:', num);
+  }, [num]);
 
   return (
     <ul
