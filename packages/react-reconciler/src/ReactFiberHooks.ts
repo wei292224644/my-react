@@ -45,6 +45,7 @@ export const renderWithHooks = (workInProgress: FiberNode, lane: Lane) => {
   currentlyRenderingFiber = workInProgress;
 
   workInProgress.memoizedState = null;
+  workInProgress.updateQueue = null;
   renderLane = lane;
 
   const current = workInProgress.alternate;
@@ -201,7 +202,41 @@ const mountEffect: Dispatcher['useEffect'] = (create: () => void | (() => void),
 const updateEffect: Dispatcher['useEffect'] = (create: () => void | (() => void), deps?: any[] | null) => {
   const hook = updateWorkInProgressHook();
 
-  console.log('updateEffect', hook);
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy: void | (() => void);
+
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState as Effect;
+
+    destroy = prevEffect.destroy;
+
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        //依赖没有变化
+        hook.memoizedState = pushEffect(Passive, create, destroy, nextDeps);
+        return;
+      }
+    }
+
+    currentlyRenderingFiber!.flags |= PassiveMask;
+    hook.memoizedState = pushEffect(Passive | HasEffect, create, undefined, nextDeps);
+    console.log('updateEffect', hook);
+  }
+};
+
+const areHookInputsEqual = (nextDeps: any[] | null, prevDeps: any[] | null): boolean => {
+  if (prevDeps === null || nextDeps === null) {
+    return false;
+  }
+
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+    if (Object.is(prevDeps[i], nextDeps[i])) {
+      continue;
+    }
+    return false;
+  }
+  return true;
 };
 
 const createFunctionComponentUpdateQueue = (): FunctionComponentUpdateQueue => {

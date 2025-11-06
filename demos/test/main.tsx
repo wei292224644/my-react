@@ -15,6 +15,9 @@ const App = () => {
 
   useEffect(() => {
     console.log('num change:', num);
+    return () => {
+      console.log('num change cleanup:', num);
+    };
   }, [num]);
 
   return (

@@ -1,9 +1,9 @@
 import { scheduleMicrotask } from 'HostConfig';
 import { createWorkInProgress, FiberNode, FiberRootNode } from './ReactFiber';
 import { beginWork } from './ReactFiberBeginWork';
-import { commitMutationEffects } from './ReactFiberCommitWork';
+import { commitMutationEffects, flushPassiveEffects } from './ReactFiberCommitWork';
 import { completeWork } from './ReactFiberCompleteWork';
-import { MutationMask, NoFlags } from './ReactFiberFlags';
+import { MutationMask, NoFlags, PassiveMask } from './ReactFiberFlags';
 import {
   getHighestPriorityLane,
   Lane,
@@ -15,8 +15,14 @@ import {
 import { HostRoot } from './ReactFiberWorkTags';
 import { flushSyncCallbacks, scheduleSyncCallback } from './ReactFiberSyncTaskQueue';
 
+import {
+  unstable_scheduleCallback as scheduleCallback,
+  unstable_NormalPriority as NormalPriority
+} from 'scheduler';
+
 let workInProgress: FiberNode | null = null;
 let workInProgressRenderLane: Lane = NoLane;
+let rootDoesHavePassiveEffects: boolean = false;
 
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
   workInProgress = createWorkInProgress(root.current, {});
@@ -131,6 +137,20 @@ function commitRoot(root: FiberRootNode) {
 
   markRootFinished(root, lane);
 
+  if (
+    (finishedWork.flags & PassiveMask) !== NoFlags ||
+    (finishedWork.subtreeFlags & PassiveMask) !== NoFlags
+  ) {
+    if (!rootDoesHavePassiveEffects) {
+      rootDoesHavePassiveEffects = true;
+      scheduleCallback(NormalPriority, () => {
+        // 处理 passive effects
+        flushPassiveEffects();
+        return;
+      });
+    }
+  }
+
   const subtreeHasEffect = (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
 
   const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
@@ -147,6 +167,9 @@ function commitRoot(root: FiberRootNode) {
   } else {
     root.current = finishedWork;
   }
+
+  rootDoesHavePassiveEffects = false;
+  ensureRootIsScheduled(root);
 }
 
 function workLoop() {

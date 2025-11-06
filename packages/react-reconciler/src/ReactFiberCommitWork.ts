@@ -41,13 +41,10 @@ const commitMutationEffectsOnFiber = (fiber: FiberNode) => {
 
   if ((flags & Placement) !== NoFlags) {
     commitPlacement(fiber);
-    // 删除Placement标记
-    fiber.flags &= ~Placement;
   }
 
   if ((flags & Update) !== NoFlags) {
     commitUpdate(fiber);
-    fiber.flags &= ~Update;
   }
 
   if ((flags & ChildDeletion) !== NoFlags) {
@@ -58,8 +55,6 @@ const commitMutationEffectsOnFiber = (fiber: FiberNode) => {
         commitDeletion(childToDelete);
       });
     }
-
-    fiber.flags &= ~ChildDeletion;
   }
 };
 
@@ -282,5 +277,11 @@ const insertOrAppendPlacementNodeIntoContainer = (
       insertOrAppendPlacementNodeIntoContainer(sibling, hostParent);
       sibling = sibling.sibling;
     }
+  }
+};
+
+export const flushPassiveEffects = () => {
+  if (__DEV__) {
+    console.warn('flushPassiveEffects 尚未实现');
   }
 };
