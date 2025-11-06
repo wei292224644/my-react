@@ -11,8 +11,6 @@ const ReactElement = function (type: Type, key: Key, ref: Ref, props: Props): Re
     __mark: 'wj'
   };
 
-  console.log(element);
-
   return element;
 };
 
@@ -54,13 +52,10 @@ export const jsx = (type: ElementType, config: any, ...maybeChildren: any[]): Re
 };
 
 export const jsxDEV = (type: ElementType, config: any, key: Key): ReactElementType => {
-  console.log('创建元素', { type, config });
-
-  //FIXME: 这里添加了 key 之后，导致 element 针对数组类型的 children 更新出现了问题,需要排查原因
-  //大概率出现在reconcileChildrenArray函数中
-
   const props: Props = {};
   let ref: Ref = null;
+
+  const elementKey = key == undefined ? null : '' + key;
 
   for (const prop in config) {
     const val = config[prop];
@@ -72,12 +67,12 @@ export const jsxDEV = (type: ElementType, config: any, key: Key): ReactElementTy
       continue;
     }
 
-    if ({}.hasOwnProperty.call(config, prop)) {
+    if (Object.prototype.hasOwnProperty.call(config, prop)) {
       props[prop] = val;
     }
   }
 
-  return ReactElement(type, key, ref, props);
+  return ReactElement(type, elementKey, ref, props);
 };
 
 export const Fragment = REACT_FRAGMENT_TYPE;
