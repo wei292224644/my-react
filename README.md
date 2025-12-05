@@ -113,3 +113,6 @@ Suspense组件会给children添加一个离屏渲染的标记（OffscreenCompone
 8. 执行completeWork,按照DFS的归方式完成。
 9. 执行完成之后会检测exitStatus，如果是RootCompleted则调用commitRootWhenReady函数。（此处在performWorkOnRoot函数中）
 10. 执行commitRoot函数，进入commit阶段，分为beforeMutation、mutation、layout、passive四个子阶段。
+
+
+## FlushSync 会已同步的方式直接戳到performWorkOnRoot，执行一次调度。
