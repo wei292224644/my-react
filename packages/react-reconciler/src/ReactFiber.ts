@@ -9,6 +9,7 @@ export class FiberNode {
   /**
    *  与 elementType 类似，但对于 HostComponent，它就是 DOM 元素的标签名
    *  对于 FunctionComponent，则是函数本身
+   *  对于 ContextProvider，则是 Context 对象
    */
   type: any;
   tag: WorkTag;
@@ -45,6 +46,10 @@ export class FiberNode {
 
   /**
    * 更新队列
+   * 1).如果tag为HostRoot时，该属性存储的便是UpdateQueue
+   * 2).如果tag为FunctionComponent时，该属性存储的便是FunctionComponentUpdateQueue
+   * 3).如果tag为HostComponent时，该属性存储的便是可能需要更新的html标签中的属性，会已数组形式存储[key1,value1,key2,value2]
+   * 4).如果tag为OffscreenComponent时，该属性存储的便是OffscreenQueue
    */
   updateQueue: UpdateQueue<any> | null;
   /**
